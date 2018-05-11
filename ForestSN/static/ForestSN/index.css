@@ -1,0 +1,12 @@
+html {
+    height: 100% !important;
+}
+
+body {
+    height: 100% !important;
+}
+
+.index-title {
+    color: #51BE95; font-size: 102pt;
+    font-family: 'Skranji', cursive;
+}
