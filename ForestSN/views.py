@@ -1,6 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
 
 def index(request):
     """Index page"""
@@ -22,6 +23,13 @@ def sign_up(request):
             return redirect('index')
     else:
         form = UserCreationForm()
-    
+
     context = {'form': form}
     return render(request, 'ForestSN/signup.html', context=context)
+
+def  profile(request, user_id):
+    """Profile page"""
+    owner = get_object_or_404(User, pk=user_id)
+    context = {'owner': owner}
+
+    return render(request, 'ForestSN/profile.html', context=context)
