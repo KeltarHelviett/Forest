@@ -10,13 +10,15 @@
             </div>
             <div class="card text-center" style="width: 18rem;">
                 <img class="card-img-top" src="https://i.pinimg.com/564x/5b/70/d1/5b70d179c4e8a58fa4f2ac6ae0ea5ba1.jpg" alt="Card image cap">
+            {% if owner.id == user.id %}
                 <div class="card-body">
                     <a href="#" class="card-link text-primary">Edit profile image</a>
                 </div>
+            {% endif %}
             </div>
         </div>
           <div class="col px-2">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <ul class="nav nav-tabs" id="tab" role="tablist">
                     <li class="nav-item">
                             <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="true">Profile</a>
                         </li>
@@ -24,22 +26,39 @@
                         <a class="nav-link" id="images-tab" data-toggle="tab" href="#images" role="tab" aria-controls="images" aria-selected="false">Images</a>
                     </li>
                 </ul>
-                <div class="tab-content" id="myTabContent">
+                <div class="tab-content" id="tabContent">
                     <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                         <div class="container">
                             <form id="profile-form" action="{% url 'profile_page' owner.id %}" method="GET" class="my-1">
-                                <div class="form-group row">
-                                    <label for="username" class="col-sm-2 col-form-label">Username</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="username" value="{{ owner.username }}" disabled>
+                                <fieldset id="profile-fieldset" disabled>
+                                    <div class="form-group row">
+                                        <label for="username" class="col-sm-2 col-form-label">Username</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="username" value="{{ owner.username }}">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="email" class="col-sm-2 col-form-label">Email</label>
-                                    <div class="col-sm-10">
-                                        <input type="email" class="form-control" id="email" value="{{ owner.email }}" disabled>
+                                    <div class="form-group row">
+                                        <label for="email" class="col-sm-2 col-form-label">Email</label>
+                                        <div class="col-sm-10">
+                                            <input type="email" class="form-control" id="email" value="{{ owner.email }}">
+                                        </div>
                                     </div>
-                                </div>
+                                    <div class="form-group row">
+                                        <label for="first-name" class="col-sm-2 col-form-label">First name</label>
+                                        <div class="col-sm-10">
+                                            <input type="first-name" class="form-control" id="first-name" value="{{ owner.profile.first_name }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="second-name" class="col-sm-2 col-form-label">Second name</label>
+                                        <div class="col-sm-10">
+                                            <input type="second-name" class="form-control" id="second-name" value="{{ owner.profile.second_name }}">
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                {% if user.id == owner.id %}
+                                    <button class="btn btn-primary float-right">Edit profile</button>
+                                {% endif %}
                             </form>
                         </div>
                     </div>
