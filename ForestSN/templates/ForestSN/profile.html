@@ -29,35 +29,27 @@
                 <div class="tab-content" id="tabContent">
                     <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                         <div class="container">
-                            <form id="profile-form" action="{% url 'profile_page' owner.id %}" method="GET" class="my-1">
+                            <form id="profile-form" action="{% url 'profile_page' owner.id %}" method="POST" class="my-1">
+                                {% csrf_token %}
                                 <fieldset id="profile-fieldset" disabled>
+                                {% for field in form %}
                                     <div class="form-group row">
-                                        <label for="username" class="col-sm-2 col-form-label">Username</label>
+                                    
+                                        <label for="{{ field.id_for_label }}" class="col-sm-2 col-form-label">{{ field.label }}</label> 
                                         <div class="col-sm-10">
-                                            <input type="text" class="form-control" id="username" value="{{ owner.username }}">
+                                            <input class="form-control {% if field.errors %}is-invalid{% endif %}" 
+                                                type="{{ field.type }}"
+                                                id="{{ field.id_for_label }}"
+                                                name="{{ field.html_name }}" 
+                                                value="{{ field.value|default_if_none:'' }}">
                                         </div>
                                     </div>
-                                    <div class="form-group row">
-                                        <label for="email" class="col-sm-2 col-form-label">Email</label>
-                                        <div class="col-sm-10">
-                                            <input type="email" class="form-control" id="email" value="{{ owner.email }}">
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label for="first-name" class="col-sm-2 col-form-label">First name</label>
-                                        <div class="col-sm-10">
-                                            <input type="first-name" class="form-control" id="first-name" value="{{ owner.profile.first_name }}">
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label for="second-name" class="col-sm-2 col-form-label">Second name</label>
-                                        <div class="col-sm-10">
-                                            <input type="second-name" class="form-control" id="second-name" value="{{ owner.profile.second_name }}">
-                                        </div>
-                                    </div>
+                                {% endfor %}
                                 </fieldset>
+                                <input id="save-profile-btn" type="submit" style="display:none;" class="btn btn-primary float-right ml-1" value="Submit">
+                                <button id="cancel-btn" type="button" style="display:none;" class="btn btn-secondary float-right">Cancel</button>
                                 {% if user.id == owner.id %}
-                                    <button class="btn btn-primary float-right">Edit profile</button>
+                                    <button type="button" id="edit-btn" class="btn btn-primary float-right">Edit profile</button>
                                 {% endif %}
                             </form>
                         </div>
@@ -72,3 +64,8 @@
     </div>
 </div>
 {% endblock content %}
+
+{% block js %}
+{% load static %}
+<script src="{% static 'ForestSN/profile.js' %}"></script>
+{% endblock js %}

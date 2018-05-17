@@ -119,6 +119,6 @@ venv.bak/
 #!.vscode/launch.json
 #!.vscode/extensions.json
 #.history
-
+jsconfig.json
 
 # End of https://www.gitignore.io/api/django,python,visualstudiocode

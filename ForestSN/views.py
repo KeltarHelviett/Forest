@@ -4,6 +4,8 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.views import login as login_view
 
+from .forms import UserProfileForm
+
 class RedirectAuthenticatedUser(object):
 
     def __init__(self, view):
@@ -52,8 +54,28 @@ def sign_up(request):
 
 def profile(request, user_id):
     """Profile page"""
+
     owner = get_object_or_404(User, pk=user_id)
-    context = {'owner': owner}
+
+    form = UserProfileForm(
+        initial={
+            'email': owner.email,
+            'first_name': owner.userprofile.first_name,
+            'last_name': owner.userprofile.last_name
+        }
+    )
+    context = {'owner': owner, 'form': form}
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST)
+
+        if form.is_valid():
+            owner.userprofile.first_name = form.cleaned_data['first_name']
+            owner.userprofile.last_name = form.cleaned_data['last_name']
+            owner.email = form.cleaned_data['email']
+            owner.userprofile.save()
+            owner.save()
+            return redirect('/profile/{}'.format(owner.id))
 
     return render(request, 'ForestSN/profile.html', context=context)
 
