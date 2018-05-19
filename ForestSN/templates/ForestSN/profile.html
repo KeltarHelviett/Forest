@@ -9,11 +9,34 @@
                 {{ owner.username }}
             </div>
             <div class="card text-center" style="width: 18rem;">
-                <img class="card-img-top" src="https://i.pinimg.com/564x/5b/70/d1/5b70d179c4e8a58fa4f2ac6ae0ea5ba1.jpg" alt="Card image cap">
+                <img class="card-img-top" id="profile-img"
+                src="{% if owner.userprofile.profile_img is not None %}{{ owner.userprofile.profile_img.img.url }}{% else %}https://i.pinimg.com/564x/5b/70/d1/5b70d179c4e8a58fa4f2ac6ae0ea5ba1.jpg{% endif %}" alt="Card image cap">
             {% if owner.id == user.id %}
                 <div class="card-body">
-                    <a href="#" class="card-link text-primary">Edit profile image</a>
+                    <a href="#" class="card-link text-primary" data-toggle="modal" data-target="#profileImageModal">Edit profile image</a>
                 </div>
+                  <div class="modal fade" id="profileImageModal" tabindex="-1" role="dialog" aria-labelledby="profileImageModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="profileImageModalLabel">Upload new profile image</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="profile-img-form" action="/media/upload_profile_img" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <button type="button" id="upload-profile-img-btn" class="btn btn-primary">Upload image</button>
+                                <input name="profile-img" id="profile-img-input" type="file" style="display:none;" />
+                            </form>
+                        </div>
+                        <div class="modal-footer d-flex justify-content-center">
+                            <div>We support JPG, GIF or PNG files.</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
             {% endif %}
             </div>
         </div>
@@ -68,4 +91,43 @@
 {% block js %}
 {% load static %}
 <script src="{% static 'ForestSN/profile.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        $('#profile-img-form').submit(function (e) {
+            e.preventDefault();
+            let data = new FormData($("#profile-img-form")[0]);
+            console.log($("#profile-img-form"));
+            $.ajax({
+                "url": "/media/upload_profile_img",
+                "type": "POST",
+                "data": data,
+                "cache": false,
+                "processData": false,
+                dataType: "json",
+                "contentType": false,
+                success: function (data) {
+                    $("#profile-img").attr('src', data.url);
+                },
+                error: function(data) {
+                },
+                "cstfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val()
+            });
+            return false;
+        })
+        $('#upload-profile-img-btn').click(function () {
+            $('#profile-img-input').click();
+        })
+        $('#profile-img-input').change(function (d) {
+            $('#profile-img-form').submit();
+        })
+    })
+</script>
 {% endblock js %}
