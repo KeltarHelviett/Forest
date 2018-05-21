@@ -33,16 +33,4 @@ class UserImage(models.Model):
     def extension(self):
         return os.path.splitext(self.img.name)[1]
 
-
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    first_name = models.CharField(max_length=150, blank=True, null=True)
-    last_name = models.CharField(max_length=150, blank=True, null=True)
-    profile_img = models.ForeignKey(UserImage, on_delete=models.SET_NULL, null=True)
-
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.get_or_create(user=instance)
-
-models.signals.post_save.connect(create_user_profile, sender=User)
 models.signals.post_save.connect(rename_img, sender=UserImage)
