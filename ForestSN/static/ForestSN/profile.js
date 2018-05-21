@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    $('#profile-img-upload-progress').hide();
     let btn = $('#edit-btn');
     if (btn) {
         btn.click(function () {
@@ -24,9 +25,22 @@ $(document).ready(function () {
     });
     $('#profile-img-form').submit(function (e) {
         e.preventDefault();
+        $('#profile-img-upload-progress').show();
+        $('#upload-profile-img-btn').hide();
         let data = new FormData($("#profile-img-form")[0]);
         console.log($("#profile-img-form"));
         $.ajax({
+            xhr: function() {
+            var xhr = new window.XMLHttpRequest();
+            xhr.addEventListener("progress", function(evt){
+                if (evt.lengthComputable) {
+                    var percentComplete = evt.loaded / evt.total;
+                    $('#profile-img-upload-progress-bar').css('width', Math.ceil(percentComplete) * 100 + '%');
+                }
+            }, false);
+
+            return xhr;
+            },
             url: "/media/upload_profile_img",
             type: "POST",
             data: data,
@@ -34,12 +48,19 @@ $(document).ready(function () {
             processData: false,
             dataType: "json",
             contentType: false,
-            success: function (data) {
-                $("#profile-img").attr('src', data.url);
-            },
-            error: function(data) {
-            },
             "cstfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val()
+        }).always((data) => {
+            window.setTimeout(() => {
+                $('#profile-img-upload-progress').hide();
+                $('#upload-profile-img-btn').show();
+            }, 600);
+        }).done((data) => {
+            window.setTimeout(() => {
+                $("#profile-img").attr('src', data.url);
+                $('#profileImageModal').modal('hide');
+            }, 500);
+        }).fail((data) => {
+            $('#profileImageModal').modal('hide');
         });
         return false;
     });
