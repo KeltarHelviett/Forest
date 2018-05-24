@@ -28,7 +28,7 @@ class UserImage(models.Model):
     img = models.ImageField(upload_to=user_img_path)
     caption = models.CharField(max_length=300, default='')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    # pub_date = models.DateTimeField('publication date')
+    pub_date = models.DateTimeField('publication date')
 
     def extension(self):
         return os.path.splitext(self.img.name)[1]
