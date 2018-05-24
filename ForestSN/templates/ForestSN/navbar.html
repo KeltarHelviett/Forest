@@ -8,9 +8,21 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav mr-auto">
-              <li class="nav-item active">
-                <a class="nav-link text-primary" href="/logout/">Log out</a>
-              </li>
+            {% if user.is_authenticated %}
+                <li class="nav-item active">
+                    <a class="nav-link text-primary" href="/me/">Home</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link text-primary" href="/logout/">Log out</a>
+                </li>
+            {% else %}
+                <li class="nav-item active">
+                    <a class="nav-link text-primary" href="/login?next={{ request.get_full_path }}">Log in</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link text-primary" href="/singup?next={{ request.get_full_path }}">Sign up</a>
+                </li>
+            {% endif %}
             </ul>
         </div>
     </nav>
