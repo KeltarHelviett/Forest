@@ -46,47 +46,64 @@
             </div>
         </div>
           <div class="col px-2">
-                <ul class="nav nav-tabs" id="tab" role="tablist">
-                    <li class="nav-item">
-                            <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="true">Profile</a>
-                        </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="images-tab" data-toggle="tab" href="#images" role="tab" aria-controls="images" aria-selected="false">Images</a>
-                    </li>
-                </ul>
-                <div class="tab-content" id="tabContent">
-                    <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                        <div class="container">
-                            <form id="profile-form" action="{% url 'profile_page' owner.id %}" method="POST" class="my-1">
-                                {% csrf_token %}
-                                <fieldset id="profile-fieldset" disabled>
-                                {% for field in form %}
-                                    <div class="form-group row">
-                                    
-                                        <label for="{{ field.id_for_label }}" class="col-sm-2 col-form-label">{{ field.label }}</label> 
-                                        <div class="col-sm-10">
-                                            <input class="form-control {% if field.errors %}is-invalid{% endif %}" 
-                                                type="{{ field.type }}"
-                                                id="{{ field.id_for_label }}"
-                                                name="{{ field.html_name }}" 
-                                                value="{{ field.value|default_if_none:'' }}">
-                                        </div>
+                <div class="row">
+                    <div class="col">
+                        <ul class="nav nav-tabs" id="tab" role="tablist">
+                                <li class="nav-item">
+                                        <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="true">Profile</a>
+                                    </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="images-tab" data-toggle="tab" href="#images" role="tab" aria-controls="images" aria-selected="false">Images</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="tabContent">
+                                <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                    <div class="container">
+                                        <form id="profile-form" action="{% url 'profile_page' owner.id %}" method="POST" class="my-1">
+                                            {% csrf_token %}
+                                            <fieldset id="profile-fieldset" disabled>
+                                            {% for field in form %}
+                                                <div class="form-group row">
+                                                
+                                                    <label for="{{ field.id_for_label }}" class="col-sm-2 col-form-label">{{ field.label }}</label> 
+                                                    <div class="col-sm-10">
+                                                        <input class="form-control {% if field.errors %}is-invalid{% endif %}" 
+                                                            type="{{ field.type }}"
+                                                            id="{{ field.id_for_label }}"
+                                                            name="{{ field.html_name }}" 
+                                                            value="{{ field.value|default_if_none:'' }}">
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            </fieldset>
+                                            <input id="save-profile-btn" type="submit" style="display:none;" class="btn btn-primary float-right ml-1" value="Submit">
+                                            <button id="cancel-btn" type="button" style="display:none;" class="btn btn-secondary float-right">Cancel</button>
+                                            {% if user.id == owner.id %}
+                                                <button type="button" id="edit-btn" class="btn btn-primary float-right">Edit profile</button>
+                                            {% endif %}
+                                        </form>
                                     </div>
-                                {% endfor %}
-                                </fieldset>
-                                <input id="save-profile-btn" type="submit" style="display:none;" class="btn btn-primary float-right ml-1" value="Submit">
-                                <button id="cancel-btn" type="button" style="display:none;" class="btn btn-secondary float-right">Cancel</button>
-                                {% if user.id == owner.id %}
-                                    <button type="button" id="edit-btn" class="btn btn-primary float-right">Edit profile</button>
-                                {% endif %}
-                            </form>
+                                </div>
+            
+                                <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="images-tab">
+                                    Here is gonna be images    
+                                </div>
+            
+                            </div>
+                    </div>
+                </div>
+                <div class="row my-4">
+                    <div class="col w-100 my-1">
+                    {% for post in posts %}
+                        <div class="media border my-3">
+                            <img src="{{ post.author.userprofile.profile_img.img.url }}" alt="dfsfd" class="align-self-start mr-3" style="width: 64px; height: 64px;">
+                            <div class="media-body">
+                                <a href="/profile/{{ post.author.id }}"><h5 class="mt-0 mb-2">{{ post.author.username }}</h5></a>
+                                <p class="border-top">{{ post.text | safe | linebreaks }}</p>
+                            </div>
                         </div>
+                    {% endfor %}
                     </div>
-
-                    <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="images-tab">
-                        Here is gonna be images    
-                    </div>
-
                 </div>
           </div>
     </div>

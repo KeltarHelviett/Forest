@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 
 from ..forms import UserProfileForm
-
+from ..models import Post
 
 def profile(request, user_id):
     """Profile page"""
@@ -16,7 +16,12 @@ def profile(request, user_id):
             'last_name': owner.userprofile.last_name
         }
     )
-    context = {'owner': owner, 'form': form}
+    posts = Post.objects.filter(
+        wall_owner=owner,
+        parent_post=None,
+        root_post=None
+    ).order_by('-pub_date')
+    context = {'owner': owner, 'form': form, 'posts': posts}
 
     if request.method == 'POST':
         form = UserProfileForm(request.POST)
