@@ -7,12 +7,12 @@ class Post(models.Model):
     pub_date = models.DateTimeField('publication date', auto_now_add=True)
     parent_post = models.ForeignKey(
         'self', on_delete=models.CASCADE,
-        related_name='parent_post_set', null=True,
+        related_name='children', null=True,
         blank=True, default=None
     )
     root_post = models.ForeignKey(
         'self', on_delete=models.CASCADE,
-        related_name='root_post_set', null=True,
+        related_name='descendants', null=True,
         blank=True, default=None
     )
     text = models.TextField(max_length=1000, blank=True)
