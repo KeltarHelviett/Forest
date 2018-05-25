@@ -70,4 +70,12 @@ $(document).ready(function () {
     $('#profile-img-input').change(function (d) {
         $('#profile-img-form').submit();
     });
+    $('.post').click((e) => {
+        if (e.target.tagName == 'A')
+            return;
+        let self = e.currentTarget;
+        window.location = location.protocol + '//' + location.host  +
+                          location.pathname + '?post_id=' + $(self).data('post-id');
+        return false;
+    })
 })

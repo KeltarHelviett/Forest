@@ -1,0 +1,10 @@
+<div class="media my-3" data-post-id="{{ comment.id }}">
+    <img src="{{ comment.author.userprofile.profile_img_url }}" class="align-self-start ml-1 mt-1 mr-3" style="width: 64px; height: 64px;">
+    <div class="media-body">
+        <a href="/profile/{{ comment.author.id }}"><h5 class="mt-0 mb-2">{{ comment.author.username }}</h5></a>
+        <p class="border-top">{{ comment.text | safe | linebreaks }}</p>
+        {% for comment in comment.children.all %}
+            {% include "ForestSN/comment_tree_view.html" %}
+        {% endfor %}
+    </div>
+</div>

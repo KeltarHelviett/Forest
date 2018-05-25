@@ -1,0 +1,9 @@
+.post {
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+}
+
+.post:hover {
+    background-color: #e9ecef;
+    cursor: pointer;
+}

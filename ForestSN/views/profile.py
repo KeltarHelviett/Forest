@@ -26,10 +26,18 @@ class ProfileView(View):
         )
 
         self.context = {'owner': self.owner, 'form': self.form, 'posts': self.posts}
-        
+
         return super().dispatch(request, user_id)
 
     def get(self, request, user_id):
+        if 'post_id' in request.GET:
+            pk = int(request.GET['post_id']) #pylint: disable=C0103
+            self.context['viewed_post'] = get_object_or_404(Post, pk=pk)
+            self.context['viewed_post_comments'] = Post.objects.filter(
+                root_post__pk=pk
+            ).order_by(
+                '-pub_date'
+            )
 
         return render(request, 'ForestSN/profile.html', context=self.context)
 
@@ -44,7 +52,7 @@ class ProfileView(View):
             self.owner.save()
             return redirect('/profile/{}'.format(self.owner.id))
 
-        return render(request, 'ForestSN/profile.html', context=self.context)    
+        return render(request, 'ForestSN/profile.html', context=self.context)
 
 def me(request): #pylint: disable=C0103
     """Authenticated user's profile.

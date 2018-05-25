@@ -1,5 +1,10 @@
 {% extends "ForestSN/_base.html" %}
 
+{% block styles %}
+    {% load static %}
+<link href="{% static 'ForestSN/profile.css' %}" rel="stylesheet">
+{% endblock styles %}
+
 {% block content %}
 {% include "ForestSN/navbar.html" %}
 <div class="container my-3">
@@ -93,12 +98,43 @@
                     </div>
                 </div>
                 <div class="row my-4">
+                {% if viewed_post %}
+                    <div class="modal fade" id="viewedPostModal" tabindex="-1" role="dialog" aria-labelledby="viewedPostModalTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="viewedPostModalTitle">Modal title</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="media my-3" data-post-id="{{ viewed_post.id }}">
+                                            <img src="{{ viewed_post.author.userprofile.profile_img_url }}"
+                                                 class="align-self-start ml-1 mt-1 mr-3" style="width: 64px; height: 64px;">
+                                            <div class="media-body">
+                                                <a href="/profile/{{ viewed_post.author.id }}"><h5 class="mt-0 mb-2">{{ viewed_post.author.username }}</h5></a>
+                                                <p class="border-top">{{ viewed_post.text | safe | linebreaks }}</p>
+                                            {% for comment in viewed_post.children.all %}
+                                                {% include "ForestSN/comment_tree_view.html" %}
+                                            {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                {% endif %}
                     <div class="col w-100 my-1">
+                    {% load get_item %}
                     {% for post in posts %}
-                        <div class="media border my-3">
-                            <img src="{{ post.author.userprofile.profile_img.img.url }}" alt="dfsfd" class="align-self-start mr-3" style="width: 64px; height: 64px;">
+                        <div class="media border my-3 post" data-post-id="{{ post.id }}">
+                            <img src="{{ post.author.userprofile.profile_img_url }}" class="align-self-start ml-1 mt-1 mr-3" style="width: 64px; height: 64px;">
                             <div class="media-body">
-                                <a href="/profile/{{ post.author.id }}"><h5 class="mt-0 mb-2">{{ post.author.username }}</h5></a>
+                                <h5 class="media-heading">
+                                    <a href="/profile/{{ post.author.id }}">{{ post.author.username }}</a>
+                                    <small><i class="font-italic">Posted on February 20, 2016</i></small>
+                                </h5>
                                 <p class="border-top">{{ post.text | safe | linebreaks }}</p>
                             </div>
                         </div>
@@ -113,4 +149,11 @@
 {% block js %}
 {% load static %}
 <script src="{% static 'ForestSN/profile.js' %}"></script>
+{% if viewed_post %}
+<script>
+    $(document).ready(() => {
+        $('#viewedPostModal').modal('show');
+    });
+</script>
+{% endif %}
 {% endblock js %}
