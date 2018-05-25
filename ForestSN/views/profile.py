@@ -1,43 +1,53 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
+from django.views import View
 
 from ..forms import UserProfileForm
 from ..models import Post
 
-def profile(request, user_id):
-    """Profile page"""
+class ProfileView(View):
+    """Profile view"""
 
-    owner = get_object_or_404(User, pk=user_id)
+    def dispatch(self, request, user_id):
+        self.owner = get_object_or_404(User, pk=user_id)
 
-    form = UserProfileForm(
-        initial={
-            'email': owner.email,
-            'first_name': owner.userprofile.first_name,
-            'last_name': owner.userprofile.last_name
-        }
-    )
-    posts = Post.objects.filter(
-        wall_owner=owner,
-        parent_post=None,
-        root_post=None
-    ).order_by('-pub_date')
-    context = {'owner': owner, 'form': form, 'posts': posts}
+        self.posts = Post.objects.filter(
+            wall_owner=self.owner,
+            parent_post=None,
+            root_post=None
+        ).order_by('-pub_date')
 
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST)
+        self.form = UserProfileForm(
+            initial={
+                'email': self.owner.email,
+                'first_name': self.owner.userprofile.first_name,
+                'last_name': self.owner.userprofile.last_name
+            }
+        )
 
-        if form.is_valid():
-            owner.userprofile.first_name = form.cleaned_data['first_name']
-            owner.userprofile.last_name = form.cleaned_data['last_name']
-            owner.email = form.cleaned_data['email']
-            owner.userprofile.save()
-            owner.save()
-            return redirect('/profile/{}'.format(owner.id))
+        self.context = {'owner': self.owner, 'form': self.form, 'posts': self.posts}
+        
+        return super().dispatch(request, user_id)
 
-    return render(request, 'ForestSN/profile.html', context=context)
+    def get(self, request, user_id):
+
+        return render(request, 'ForestSN/profile.html', context=self.context)
+
+    def post(self, request, user_id):
+        self.form = UserProfileForm(request.POST)
+
+        if self.form.is_valid():
+            self.owner.userprofile.first_name = self.form.cleaned_data['first_name']
+            self.owner.userprofile.last_name = self.form.cleaned_data['last_name']
+            self.owner.email = self.form.cleaned_data['email']
+            self.owner.userprofile.save()
+            self.owner.save()
+            return redirect('/profile/{}'.format(self.owner.id))
+
+        return render(request, 'ForestSN/profile.html', context=self.context)    
 
 def me(request): #pylint: disable=C0103
     """Authenticated user's profile.
     Shortcut for /profile/request.user.id"""
 
-    return profile(request, request.user.id)
+    return ProfileView.as_view()(request, request.user.id)

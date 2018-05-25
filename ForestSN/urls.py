@@ -7,7 +7,7 @@ urlpatterns = [
     path('login/', views.log_in, name='login'),
     path('', include('django.contrib.auth.urls')),
     path('signup/', views.sign_up, name='sign_up'),
-    path('profile/<int:user_id>', views.profile, name='profile_page'),
+    path('profile/<int:user_id>', views.ProfileView.as_view(), name='profile_page'),
     path('me/', views.me, name='me'),
     path('media/upload_profile_img', views.upload_profile_img, name='upload_profile_img'),
     re_path(
