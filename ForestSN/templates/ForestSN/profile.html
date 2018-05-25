@@ -113,7 +113,10 @@
                                             <img src="{{ viewed_post.author.userprofile.profile_img_url }}"
                                                  class="align-self-start ml-1 mt-1 mr-3" style="width: 64px; height: 64px;">
                                             <div class="media-body">
-                                                <a href="/profile/{{ viewed_post.author.id }}"><h5 class="mt-0 mb-2">{{ viewed_post.author.username }}</h5></a>
+                                                <h5 class="media-heading">
+                                                    <a href="/profile/{{ post.author.id }}">{{ viewed_post.author.username }}</a>
+                                                    <small><i class="font-italic">Posted on {{ viewed_post.pub_date|date:'Y M G' }}</i></small>
+                                                </h5>
                                                 <p class="border-top">{{ viewed_post.text | safe | linebreaks }}</p>
                                             {% for comment in viewed_post.children.all %}
                                                 {% include "ForestSN/comment_tree_view.html" %}
@@ -126,14 +129,29 @@
                     </div>
                 {% endif %}
                     <div class="col w-100 my-1">
-                    {% load get_item %}
+                    {% if user.is_authenticated %}
+                        <form action="/post_api/" method="POST">
+                            {% csrf_token %}
+                            <div class="control-group">
+                                <textarea id="text" name="text" class="form-control" cols="30" rows="2"></textarea>
+                            </div>
+                            <input type="number" name="wall_owner_id" id="wallOwnerId" value="{{ owner.id }}" hidden>
+                            <input type="number" name="author_id" id="authorId" value="{{ user.id }}" hidden>
+                            <input type="text" name="next" value="{{ request.path }}" hidden>
+                            <div class="form-group row">
+                                <div class="col">
+                                    <input type="submit" class="btn btn-primary mt-2 float-right" value="Post">
+                                </div>
+                            </div>
+                        </form>
+                    {% endif %}
                     {% for post in posts %}
                         <div class="media border my-3 post" data-post-id="{{ post.id }}">
                             <img src="{{ post.author.userprofile.profile_img_url }}" class="align-self-start ml-1 mt-1 mr-3" style="width: 64px; height: 64px;">
                             <div class="media-body">
                                 <h5 class="media-heading">
                                     <a href="/profile/{{ post.author.id }}">{{ post.author.username }}</a>
-                                    <small><i class="font-italic">Posted on February 20, 2016</i></small>
+                                    <small><i class="font-italic">Posted on {{ post.pub_date|date:'Y M G' }}</i></small>
                                 </h5>
                                 <p class="border-top">{{ post.text | safe | linebreaks }}</p>
                             </div>
