@@ -10,7 +10,7 @@
             </button>
         {% endif %}
         </h5>
-        <p class="border-top">{{ comment.text | safe | linebreaks }}</p>
+        <p class="border-top">{{ comment.text | linebreaks }}</p>
         {% if user.is_authenticated %}
         <ul class="nav">
             <li class="nav-item">
