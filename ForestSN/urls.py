@@ -14,5 +14,6 @@ urlpatterns = [
         r'^media/imgs/user_(?P<user_id>[0-9]+)/img_(?P<img_id>[0-9]+)\.(jpg|jpeg|png|gif)/$',
         views.get_user_image
     ),
-    path('post_api/', views.PostAPI.as_view())
+    path('post_api/', views.PostAPI.as_view()),
+    path('post_api/reply/', views.PostAPI.as_view())
 ]

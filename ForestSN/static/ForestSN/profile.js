@@ -1,3 +1,23 @@
+function reply(postId, wallOwnerId, text) {
+    data = new FormData();
+    data.append('post_id', postId);
+    data.append('wall_owner_id', wallOwnerId);
+    console.log(text.value);
+    data.append('text', text.value);
+    $.ajax({
+        url: "/post_api/reply/",
+        type: "POST",
+        cache: false,
+        processData: false,
+        dataType: "json",
+        data: data,
+        contentType: false,
+        "cstfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val()
+    }).done((data) => {
+        window.location.reload(false); 
+    })
+}
+
 $(document).ready(function () {
     $('#profile-img-upload-progress').hide();
     let btn = $('#edit-btn');
@@ -71,11 +91,43 @@ $(document).ready(function () {
         $('#profile-img-form').submit();
     });
     $('.post').click((e) => {
-        if (e.target.tagName == 'A')
+        console.log(e.target.tagName);
+        if (e.target.tagName == 'A'|| e.target.tagName == 'SPAN')
             return;
         let self = e.currentTarget;
         window.location = location.protocol + '//' + location.host  +
                           location.pathname + '?post_id=' + $(self).data('post-id');
         return false;
-    })
+    });
+    $('.post-delete-btn').click((e) => {
+        console.log('asd');
+        let self = e.target;
+        let res = confirm('You want to delete this post, don\'t you?');
+        if (!res) return;
+        $.ajax({
+            url: "/post_api/?post_id=" + $(self).data('post-id'),
+            type: "DELETE",
+            cache: false,
+            processData: false,
+            dataType: "json",
+            contentType: false,
+            "cstfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val()
+        }).done((data) => {
+            window.location.reload(true); 
+        })
+    });
+    $('a.post-reply').click((e) => {
+        let self = e.currentTarget;
+        let mediaWrapper = $(self).closest('.media');
+        let postId = $(mediaWrapper).data('post-id');
+        let replyBox = $(mediaWrapper).find('.reply-box')[0];
+        let wallOwnerId = $('#wallOwnerId').val();
+        $(replyBox).show();
+        $(replyBox).html(`
+            <div class='col'>
+                <textarea style="width: 100%;" class="reply-text" cols="30" rows="2"></textarea>
+                <button class="btn btn-primary float-right" onclick="reply(${postId}, ${wallOwnerId}, $(this).siblings('.reply-text')[0]);">Reply</button>
+            </div>
+        `)
+    });
 })

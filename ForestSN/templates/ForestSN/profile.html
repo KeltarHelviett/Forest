@@ -109,20 +109,9 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <div class="media my-3" data-post-id="{{ viewed_post.id }}">
-                                            <img src="{{ viewed_post.author.userprofile.profile_img_url }}"
-                                                 class="align-self-start ml-1 mt-1 mr-3" style="width: 64px; height: 64px;">
-                                            <div class="media-body">
-                                                <h5 class="media-heading">
-                                                    <a href="/profile/{{ post.author.id }}">{{ viewed_post.author.username }}</a>
-                                                    <small><i class="font-italic">Posted on {{ viewed_post.pub_date|date:'Y M G' }}</i></small>
-                                                </h5>
-                                                <p class="border-top">{{ viewed_post.text | safe | linebreaks }}</p>
-                                            {% for comment in viewed_post.children.all %}
-                                                {% include "ForestSN/comment_tree_view.html" %}
-                                            {% endfor %}
-                                            </div>
-                                        </div>
+                                    {% with comment=viewed_post %}
+                                        {% include "ForestSN/comment_tree_view.html" %}
+                                    {% endwith %}
                                     </div>
                                 </div>
                             </div>
@@ -152,6 +141,11 @@
                                 <h5 class="media-heading">
                                     <a href="/profile/{{ post.author.id }}">{{ post.author.username }}</a>
                                     <small><i class="font-italic">Posted on {{ post.pub_date|date:'Y M G' }}</i></small>
+                                {% if user.id == owner.id or post.author.id == user.id %}
+                                    <button type="button mx-2 my-2" class="close post-delete-btn" aria-label="Close">
+                                        <span aria-hidden="true" data-post-id="{{ post.id }}">&times;</span>
+                                    </button>
+                                {% endif %}
                                 </h5>
                                 <p class="border-top">{{ post.text | safe | linebreaks }}</p>
                             </div>

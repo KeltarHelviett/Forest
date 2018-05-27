@@ -1,8 +1,26 @@
 <div class="media my-3" data-post-id="{{ comment.id }}">
     <img src="{{ comment.author.userprofile.profile_img_url }}" class="align-self-start ml-1 mt-1 mr-3" style="width: 64px; height: 64px;">
     <div class="media-body">
-        <a href="/profile/{{ comment.author.id }}"><h5 class="mt-0 mb-2">{{ comment.author.username }}</h5></a>
+        <h5 class="media-heading">
+            <a href="/profile/{{ comment.author.id }}">{{ comment.author.username }}</a>
+            <small><i class="font-italic">Posted on {{ comment.pub_date|date:'Y M G' }}</i></small>
+        {% if user.id == owner.id or comment.author.id == user.id %}
+            <button type="button mx-2 my-2" class="close post-delete-btn" aria-label="Close">
+                <span aria-hidden="true" data-post-id="{{ comment.id }}">&times;</span>
+            </button>
+        {% endif %}
+        </h5>
         <p class="border-top">{{ comment.text | safe | linebreaks }}</p>
+        {% if user.is_authenticated %}
+        <ul class="nav">
+            <li class="nav-item">
+              <a class="nav-link post-reply" href="#">reply</a>
+            </li>
+        </ul>
+        <div class="reply-box row" style="display: none;">
+            
+        </div>
+        {% endif %}
         {% for comment in comment.children.all %}
             {% include "ForestSN/comment_tree_view.html" %}
         {% endfor %}
