@@ -2,7 +2,6 @@ function reply(postId, wallOwnerId, text) {
     data = new FormData();
     data.append('post_id', postId);
     data.append('wall_owner_id', wallOwnerId);
-    console.log(text.value);
     data.append('text', text.value);
     $.ajax({
         url: "/post_api/reply/",
@@ -14,7 +13,7 @@ function reply(postId, wallOwnerId, text) {
         contentType: false,
         "cstfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val()
     }).done((data) => {
-        window.location.reload(false); 
+        window.location.reload(false);
     })
 }
 

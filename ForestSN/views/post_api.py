@@ -1,8 +1,10 @@
 from django.views import View
 from django.core import serializers
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
+from django.core import serializers
+
 import json
 
 from ..models import Post
@@ -29,7 +31,7 @@ class PostAPI(View):
                     parent_post=parent_post
                 )
                 post.save()
-                return HttpResponseRedirect(next_url)
+                return HttpResponse(serializers.serialize('json', [post]))
             except:
                 return HttpResponseBadRequest('bad')
 
