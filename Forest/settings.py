@@ -25,7 +25,7 @@ SECRET_KEY = 'iet0+m@7$028_wc=*h&%wgx7r^)f(#o@n1hg*bc+_a$vvk5g=&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['keltarhelviett.pythonanywhere.com', 'localhost']
 
 
 # Application definition
