@@ -56,10 +56,17 @@ class OAuth2(View):
     def post(self, request):
         form = OAuth2Form(request.POST)
         user = request.user
+        context = {
+            'redirect_url': request.POST['redirect_url'],
+            'form': form
+        }
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(username=username, password=password)
+            if user is None:
+                context['form'] = OAuth2Form()
+                return render(request, 'ForestSN/oauth.html', context=context)
             login(request, user)
         
         if user.is_authenticated:
@@ -68,7 +75,7 @@ class OAuth2(View):
             url = request.POST['redirect_url'] + '?auth_code={}'.format(auth_code.code)
             return redirect(url)
 
-        context = {'form': OAuth2Form()}
-        context['redirect_url'] = request.POST['redirect_url']
+        context['form'] = OAuth2Form()
+        
 
         return render(request, 'ForestSN/oauth.html', context=context)
