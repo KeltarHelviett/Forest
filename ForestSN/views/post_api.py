@@ -1,9 +1,8 @@
 from django.views import View
 from django.core import serializers
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
-from django.core import serializers
 
 import json
 
