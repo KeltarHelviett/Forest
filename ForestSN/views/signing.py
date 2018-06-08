@@ -5,6 +5,7 @@ from django.contrib.auth.views import login as login_view
 from django.views import View
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.utils.datastructures import MultiValueDictKeyError
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
 from ..forms import OAuth2Form
@@ -48,6 +49,10 @@ class OAuth2(View):
         '/api/token': 'token'
     }
 
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(OAuth2, self).dispatch(request, *args, **kwargs)
+
     def _get_login(self, request):
         try:
             context = {'form': OAuth2Form()}
@@ -86,9 +91,8 @@ class OAuth2(View):
 
         return render(request, 'ForestSN/oauth.html', context=context)
 
-    @csrf_exempt
     def _post_token(self, request):
-        auth_code = request.POST['auth_code']
+        auth_code = request.GET['auth_code']
         try:
            auth_code = AuthorizationCode.objects.get(code=auth_code)
            access_token = AccessToken(user=auth_code.user)
