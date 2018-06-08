@@ -1,0 +1,43 @@
+{% extends "ForestSN/_base.html" %}
+
+{% block styles %}
+<style>
+    body {
+        height: 100% !important;
+    }
+    html {
+        height: 100% !important;
+    }
+</style>
+{% endblock styles %}
+
+{% block content %}
+{% include "ForestSN/navbar.html" %}
+<div class="container h-100">
+    <div class="row h-100 justify-content-center text-center">
+        <div class="col align-self-center text-center d-flex flex-column align-items-center">
+            <form method="POST" action="/api/login">
+            {% csrf_token %}
+            {% if not user.is_authenticated  %}
+                {% for field in form %}
+                    <div class="form-group">
+                        
+                        {{ field.label_tag }} 
+                        <input class="form-control {% if field.errors %}is-invalid{% endif %}" 
+                        type="{% if 'password' in field.html_name %}password{% else %}text{% endif %}"
+                        id="{{ field.id_for_label }}" name="{{ field.html_name }}" value="{{ field.value|default_if_none:'' }}">
+                    {% if field.help_text %}
+                        <smal class="form-text text-muted">{{ field.help_text|safe }}</smal>
+                    {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <h1 class="text-primary">You're already authenticated</h1>
+            {% endif %}
+                <input class="btn btn-primary" type="submit" value="OK" style="margin:2px;">
+                <input type="url" name="redirect_url" id="redirectUrl" value="{{ redirect_url }}" hidden>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

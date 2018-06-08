@@ -15,5 +15,6 @@ urlpatterns = [
         views.get_user_image
     ),
     path('post_api/', views.PostAPI.as_view()),
-    path('post_api/reply/', views.PostAPI.as_view())
+    path('post_api/reply/', views.PostAPI.as_view()),
+    path('api/login', views.OAuth2.as_view())
 ]
