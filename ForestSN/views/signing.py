@@ -5,6 +5,7 @@ from django.contrib.auth.views import login as login_view
 from django.views import View
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.utils.datastructures import MultiValueDictKeyError
+from django.views.decorators.csrf import csrf_exempt
 
 from ..forms import OAuth2Form
 from .utils import RedirectAuthenticatedUser
@@ -85,11 +86,12 @@ class OAuth2(View):
 
         return render(request, 'ForestSN/oauth.html', context=context)
 
+    @csrf_exempt
     def _post_token(self, request):
         auth_code = request.POST['auth_code']
         try:
            auth_code = AuthorizationCode.objects.get(code=auth_code)
-           access_token = AccessToken(auth_code.user)
+           access_token = AccessToken(user=auth_code.user)
            access_token.save()
            return JsonResponse({
                'status': 'ok',
