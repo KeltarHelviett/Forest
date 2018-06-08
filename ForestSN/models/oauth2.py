@@ -8,6 +8,7 @@ from ..models import ExternalSocialNetwork
 class AuthorizationCode(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=256)
+    service = models.CharField(max_length=256) # should be Integer
     # expiration_datetime
 
     def save(self, *args, **kwargs):
@@ -18,7 +19,7 @@ class AuthorizationCode(models.Model):
 class AccessToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     token = models.CharField(max_length=256)
-    app_name = models.CharField(max_length=200) # should be client_id or smth
+    service = models.CharField(max_length=200) # should be client_id or smth
     # expiration_date
 
     def save(self, *args, **kwargs):
