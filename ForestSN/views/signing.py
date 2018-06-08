@@ -12,6 +12,7 @@ from ..forms import OAuth2Form
 from .utils import RedirectAuthenticatedUser
 from ..models import AuthorizationCode, AccessToken
 
+from requests import post
 from secrets import token_urlsafe
 
 @RedirectAuthenticatedUser
@@ -24,6 +25,8 @@ def sign_up(request):
     """Sign up page"""
     if 'auth_code' in request.GET:
         auth_code = request.GET['auth_code']
+        # post 
+        
     if request.user.is_authenticated:
         return redirect('/profile/{}'.format(request.user.id))
 
@@ -57,6 +60,7 @@ class OAuth2(View):
         try:
             context = {'form': OAuth2Form()}
             context['redirect_url'] = request.GET['redirect_url']
+            context['service_id'] = request.GET['service_id']
         except MultiValueDictKeyError as error:
             return HttpResponseBadRequest(
                 content="Required parameter {} wasn't specified".format(error.args[0])
@@ -69,6 +73,7 @@ class OAuth2(View):
         user = request.user
         context = {
             'redirect_url': request.POST['redirect_url'],
+            'service_id': request.POST['service_id'],
             'form': form
         }
         if form.is_valid():
@@ -81,7 +86,7 @@ class OAuth2(View):
             login(request, user)
         
         if user.is_authenticated:
-            auth_code = AuthorizationCode(user=user)
+            auth_code = AuthorizationCode(user=user, context['service_id'])
             auth_code.save()
             url = request.POST['redirect_url'] + '?auth_code={}'.format(auth_code.code)
             return redirect(url)
@@ -93,9 +98,10 @@ class OAuth2(View):
 
     def _post_token(self, request):
         auth_code = request.GET['auth_code']
+        service_id = request.GET['serivce_id']
         try:
-           auth_code = AuthorizationCode.objects.get(code=auth_code)
-           access_token = AccessToken(user=auth_code.user)
+           auth_code = AuthorizationCode.objects.get(code=auth_code, service=service_id)
+           access_token = AccessToken(user=auth_code.user, service=service_id)
            access_token.save()
            return JsonResponse({
                'status': 'ok',
