@@ -1,14 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import login as login_view
 from django.views import View
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.utils.datastructures import MultiValueDictKeyError
 
 from ..forms import OAuth2Form
 from .utils import RedirectAuthenticatedUser
-from ..models import AuthorizationCode
+from ..models import AuthorizationCode, AccessToken
 
 from secrets import token_urlsafe
 
@@ -18,9 +18,10 @@ def log_in(request):
 
     return login_view(request)
 
-@RedirectAuthenticatedUser
 def sign_up(request):
     """Sign up page"""
+    if 'auth_code' in request.GET:
+        auth_code = request.GET['auth_code']
     if request.user.is_authenticated:
         return redirect('/profile/{}'.format(request.user.id))
 
@@ -41,8 +42,12 @@ def sign_up(request):
     return render(request, 'ForestSN/signup.html', context=context)
 
 class OAuth2(View):
+    methods = {
+        '/api/login': 'login',
+        '/api/token': 'token'
+    }
 
-    def get(self, request):
+    def _get_login(self, request):
         try:
             context = {'form': OAuth2Form()}
             context['redirect_url'] = request.GET['redirect_url']
@@ -53,7 +58,7 @@ class OAuth2(View):
 
         return render(request, 'ForestSN/oauth.html', context=context)
 
-    def post(self, request):
+    def _post_login(self, request):
         form = OAuth2Form(request.POST)
         user = request.user
         context = {
@@ -79,3 +84,23 @@ class OAuth2(View):
         
 
         return render(request, 'ForestSN/oauth.html', context=context)
+
+    def _post_token(self, request):
+        auth_code = request.POST['auth_code']
+        try:
+           auth_code = AuthorizationCode.objects.get(code=auth_code)
+           access_token = AccessToken(auth_code.user)
+           access_token.save()
+           return JsonResponse({
+               'status': 'ok',
+               'user_id': auth_code.user.id,
+               'token': access_token.token
+           })
+        except:
+            return JsonResponse({'status': 'error'}) 
+
+    def get(self, request):
+        return getattr(self, '_get_' + OAuth2.methods[request.path])(request)
+
+    def post(self, request):
+        return getattr(self, '_post_' + OAuth2.methods[request.path])(request)

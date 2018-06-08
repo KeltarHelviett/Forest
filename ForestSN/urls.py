@@ -16,5 +16,6 @@ urlpatterns = [
     ),
     path('post_api/', views.PostAPI.as_view()),
     path('post_api/reply/', views.PostAPI.as_view()),
-    path('api/login', views.OAuth2.as_view())
+    path('api/login', views.OAuth2.as_view()),
+    path('api/token', views.OAuth2.as_view()),
 ]
