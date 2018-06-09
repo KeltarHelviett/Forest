@@ -18,4 +18,6 @@ urlpatterns = [
     path('post_api/reply/', views.PostAPI.as_view()),
     path('api/login', views.OAuth2.as_view()),
     path('api/token', views.OAuth2.as_view()),
+    path('signup/<str:sn_name>', views.external_sn_signup),
+    path('api/profile/<int:user_id>', views.OAuth2.as_view()),
 ]

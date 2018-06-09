@@ -7,6 +7,6 @@ class ExternalSocialNetwork(models.Model):
 
 class ExternalSocialNetworkSession(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
-    access_token = models.CharField(max_length=256, unique=True)
-    ext_user_id = models.BigIntegerField(unique=True, null=True)
+    access_token = models.CharField(max_length=256)
+    ext_user_id = models.BigIntegerField(null=True)
     ext_social_network = models.ForeignKey(ExternalSocialNetwork, on_delete=models.CASCADE)

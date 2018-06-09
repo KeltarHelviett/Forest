@@ -5,4 +5,15 @@
     {% define signing_type 'Sign up' %}
     {% define signing_url 'sign_up' %}
     {{ block.super }}
+<button class="btn-secondary" id='tdsn'>Sign with TDSN</button>
 {% endblock content %}
+
+{% block js %}
+<script>
+    $(document).ready(() =>{
+        $('#tdsn').click(() => {
+            window.open('{{ tdsn.url }}' + 'login?redirect_url={{ request.scheme }}://{{ request.get_host }}/signup/tdsn&service_id=Forest');
+        });
+    });
+</script>
+{% endblock js %}

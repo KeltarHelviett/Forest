@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
 from django.contrib.auth.views import login as login_view
 from django.views import View
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
@@ -10,9 +11,9 @@ from django.views.decorators.csrf import csrf_exempt
 
 from ..forms import OAuth2Form
 from .utils import RedirectAuthenticatedUser
-from ..models import AuthorizationCode, AccessToken
+from ..models import AuthorizationCode, AccessToken, ExternalSocialNetwork, ExternalSocialNetworkSession
 
-from requests import post
+from requests import post, get
 from secrets import token_urlsafe
 
 @RedirectAuthenticatedUser
@@ -23,10 +24,8 @@ def log_in(request):
 
 def sign_up(request):
     """Sign up page"""
-    if 'auth_code' in request.GET:
-        auth_code = request.GET['auth_code']
-        # post 
-        
+    tdsn = ExternalSocialNetwork.objects.get(name='tdsn')
+
     if request.user.is_authenticated:
         return redirect('/profile/{}'.format(request.user.id))
 
@@ -43,76 +42,36 @@ def sign_up(request):
     else:
         form = UserCreationForm()
 
-    context = {'form': form}
+    context = {'form': form, 'tdsn': tdsn}
     return render(request, 'ForestSN/signup.html', context=context)
 
-class OAuth2(View):
-    methods = {
-        '/api/login': 'login',
-        '/api/token': 'token'
-    }
-
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super(OAuth2, self).dispatch(request, *args, **kwargs)
-
-    def _get_login(self, request):
-        try:
-            context = {'form': OAuth2Form()}
-            context['redirect_url'] = request.GET['redirect_url']
-            context['service_id'] = request.GET['service_id']
-        except MultiValueDictKeyError as error:
-            return HttpResponseBadRequest(
-                content="Required parameter {} wasn't specified".format(error.args[0])
-            )
-
-        return render(request, 'ForestSN/oauth.html', context=context)
-
-    def _post_login(self, request):
-        form = OAuth2Form(request.POST)
-        user = request.user
-        context = {
-            'redirect_url': request.POST['redirect_url'],
-            'service_id': request.POST['service_id'],
-            'form': form
-        }
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(username=username, password=password)
-            if user is None:
-                context['form'] = OAuth2Form()
-                return render(request, 'ForestSN/oauth.html', context=context)
-            login(request, user)
-        
-        if user.is_authenticated:
-            auth_code = AuthorizationCode(user=user, context['service_id'])
-            auth_code.save()
-            url = request.POST['redirect_url'] + '?auth_code={}'.format(auth_code.code)
-            return redirect(url)
-
-        context['form'] = OAuth2Form()
-        
-
-        return render(request, 'ForestSN/oauth.html', context=context)
-
-    def _post_token(self, request):
+def external_sn_signup(request, sn_name=''):
+    import traceback
+    try:
         auth_code = request.GET['auth_code']
-        service_id = request.GET['serivce_id']
-        try:
-           auth_code = AuthorizationCode.objects.get(code=auth_code, service=service_id)
-           access_token = AccessToken(user=auth_code.user, service=service_id)
-           access_token.save()
-           return JsonResponse({
-               'status': 'ok',
-               'user_id': auth_code.user.id,
-               'token': access_token.token
-           })
-        except:
-            return JsonResponse({'status': 'error'}) 
-
-    def get(self, request):
-        return getattr(self, '_get_' + OAuth2.methods[request.path])(request)
-
-    def post(self, request):
-        return getattr(self, '_post_' + OAuth2.methods[request.path])(request)
+        esn = ExternalSocialNetwork.objects.get(name=sn_name)
+        data = post(esn.url + 'token', data={
+            'service_id': 'Forest',
+            'auth_code': auth_code
+        }).json()
+        if data['status'] == 'ok':
+            user = User(username=token_urlsafe(32), password=token_urlsafe(32))
+            user.save()
+            esns = ExternalSocialNetworkSession(
+                user=user, access_token=data['token'],
+                ext_user_id=data['user_id'], ext_social_network=esn
+            )
+            esns.save()
+            try:
+                data = get(esn.url + 'profile/{}?service_id={}&token={}'.format(
+                    esns.ext_user_id, 'Forest', esns.access_token
+                )).json()
+                if data['status'] == 'ok':
+                    user.email = data['email']
+                    user.save()
+            except:
+                traceback.print_exc()
+            login(request, user)
+            return redirect('/me')
+    except:
+        return HttpResponseBadRequest('bad')
