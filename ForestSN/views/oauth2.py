@@ -68,7 +68,7 @@ class OAuth2(View):
     def _post_token(self, request, *args, **kwargs):
         try:
             auth_code = request.POST['auth_code']
-            service_id = request.POST['serivce_id']
+            service_id = request.POST['service_id']
             auth_code = AuthorizationCode.objects.get(
                 code=auth_code, service=service_id
             )
