@@ -87,7 +87,7 @@ class OAuth2(View):
             user = User.objects.get(pk=user_id)
             data = {
                 'status': 'ok',
-                'email': user.userprofile.email,
+                'email': user.email,
                 'login': user.username
             }
             return JsonResponse(data)
