@@ -74,6 +74,7 @@ class OAuth2(View):
             )
             access_token = AccessToken(user=auth_code.user, service=service_id)
             access_token.save()
+            auth_code.delete()
             return JsonResponse({
                 'status': 'ok',
                 'user_id': auth_code.user.id,

@@ -24,8 +24,7 @@ def log_in(request):
 
 def sign_up(request):
     """Sign up page"""
-    tdsn = ExternalSocialNetwork.objects.get(name='tdsn')
-
+    sns = ExternalSocialNetwork.objects.all()
     if request.user.is_authenticated:
         return redirect('/profile/{}'.format(request.user.id))
 
@@ -42,7 +41,7 @@ def sign_up(request):
     else:
         form = UserCreationForm()
 
-    context = {'form': form, 'tdsn': tdsn}
+    context = {'form': form, 'sns': sns}
     return render(request, 'ForestSN/signup.html', context=context)
 
 def external_sn_signup(request, sn_name=''):

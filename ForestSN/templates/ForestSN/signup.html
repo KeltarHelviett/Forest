@@ -1,19 +1,24 @@
 {% extends "ForestSN/_signing.html" %}
-
+ду
 {% block content %}
     {% load define %}
     {% define signing_type 'Sign up' %}
     {% define signing_url 'sign_up' %}
     {{ block.super }}
-<button class="btn-secondary" id='tdsn'>Sign with TDSN</button>
+{% for sn in sns %}
+    <button class="btn-secondary" id='{{ sn.name }}'>Sign with {{ sn.name|upper }}</button>    
+{% endfor %}
 {% endblock content %}
+
 
 {% block js %}
 <script>
     $(document).ready(() =>{
-        $('#tdsn').click(() => {
-            window.open('{{ tdsn.url }}' + 'login?redirect_url={{ request.scheme }}://{{ request.get_host }}/signup/tdsn&service_id=Forest');
-        });
+    {% for sn in sns %}
+        $('#' + '{{ sn.name }}').click(() => {
+            window.open('{{ sn.url }}' + 'login?redirect_url={{ request.scheme }}://{{ request.get_host }}/signup/{{ sn.name }}&service_id=Forest');
+        });    
+    {% endfor %}
     });
 </script>
 {% endblock js %}
